@@ -39,9 +39,6 @@ def get_active_connections():
         # Get process path for each connection
         lines = result.split('\n')
         updated_result = ''
-        count = 0
-        page_number = 1
-        page_size = 10
         for line in lines:
             if 'TCP' in line or 'UDP' in line:
                 parts = line.split()
@@ -52,18 +49,9 @@ def get_active_connections():
                     updated_result += updated_line + '\n'
                 else:
                     updated_result += line + '\n'
-                count += 1
-                if count % page_size == 0:
-                    messagebox.showinfo(f'Active Connections - Page {page_number}', updated_result)
-                    updated_result = ''
-                    page_number += 1
-                    user_input = messagebox.askquestion('Active Connections', 'Do you want to continue to the next page?')
-                    if user_input == 'no':
-                        break
             else:
                 updated_result += line + '\n'
-        if updated_result:
-            messagebox.showinfo(f'Active Connections - Page {page_number}', updated_result)
+        messagebox.showinfo('Active Connections', updated_result)
     except subprocess.CalledProcessError:
         messagebox.showerror('Error', 'Error occurred while retrieving active connections.')
 
