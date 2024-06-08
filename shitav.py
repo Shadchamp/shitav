@@ -4,7 +4,7 @@ import hashlib
 import tkinter as tk
 from tkinter import messagebox
 import subprocess
-
+import psutil
 
 def scan_directory(directory_path, api_key):
     for root, dirs, files in os.walk(directory_path):
@@ -32,13 +32,47 @@ def scan_file(file_path, api_key):
             return 'Error occurred while scanning the file.'
     except PermissionError:
         return f'Permission denied for file {file_path}.'
-
+    
 def get_active_connections():
     try:
         result = subprocess.check_output(['netstat', '-ano']).decode('utf-8')
-        messagebox.showinfo('Active Connections', result)
+        # Get process path for each connection
+        lines = result.split('\n')
+        updated_result = ''
+        count = 0
+        page_number = 1
+        page_size = 10
+        for line in lines:
+            if 'TCP' in line or 'UDP' in line:
+                parts = line.split()
+                pid = parts[-1]
+                if pid != '0':
+                    process_path = get_process_path(pid)
+                    updated_line = f'{line} Process Path: {process_path}'
+                    updated_result += updated_line + '\n'
+                else:
+                    updated_result += line + '\n'
+                count += 1
+                if count % page_size == 0:
+                    messagebox.showinfo(f'Active Connections - Page {page_number}', updated_result)
+                    updated_result = ''
+                    page_number += 1
+                    user_input = messagebox.askquestion('Active Connections', 'Do you want to continue to the next page?')
+                    if user_input == 'no':
+                        break
+            else:
+                updated_result += line + '\n'
+        if updated_result:
+            messagebox.showinfo(f'Active Connections - Page {page_number}', updated_result)
     except subprocess.CalledProcessError:
         messagebox.showerror('Error', 'Error occurred while retrieving active connections.')
+
+def get_process_path(pid):
+    try:
+        process = psutil.Process(int(pid))
+        return process.exe()
+    except psutil.NoSuchProcess:
+        return 'Process not found'
 
 def scan_ip(ip_address, api_key):
     try:
