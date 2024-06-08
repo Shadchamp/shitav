@@ -32,7 +32,7 @@ def scan_file(file_path, api_key):
             return 'Error occurred while scanning the file.'
     except PermissionError:
         return f'Permission denied for file {file_path}.'
-    
+
 def get_active_connections():
     try:
         result = subprocess.check_output(['netstat', '-ano']).decode('utf-8')
@@ -51,21 +51,22 @@ def get_active_connections():
                     updated_result += line + '\n'
             else:
                 updated_result += line + '\n'
-        
+
         # Filter out localhost connections
         filtered_result = ''
         for line in updated_result.split('\n'):
             if '127.0.0.1' not in line and '::1' not in line and '0.0.0.0:0' not in line and '*:*' not in line:
                 filtered_result += line + '\n'
-        
+
         # Create a scrollable text box to display the results
         scrollable_text = tk.Text(window)
         scrollable_text.insert(tk.END, filtered_result)
         scrollable_text.pack(fill=tk.BOTH, expand=True)
-        
+
         # Create close button
         close_button = tk.Button(window, text='Close', command=lambda:[scrollable_text.destroy(),close_button.destroy()])
         close_button.pack()
+
     except subprocess.CalledProcessError:
         messagebox.showerror('Error', 'Error occurred while retrieving active connections.')
 
@@ -107,6 +108,21 @@ def scan_ip_button_clicked():
 def display_scan_result(file_or_ip, result):
     messagebox.showinfo('Scan Result', result)
 
+def list_autoruns():
+    try:
+        result = subprocess.check_output(['wmic', 'startup', 'get', 'Caption,Command']).decode('utf-8')
+        # Create a scrollable text box to display the results
+        scrollable_text = tk.Text(window)
+        scrollable_text.insert(tk.END, result)
+        scrollable_text.pack(fill=tk.BOTH, expand=True)
+
+        # Create close button
+        close_button = tk.Button(window, text='Close', command=lambda:[scrollable_text.destroy(),close_button.destroy()])
+        close_button.pack()
+        
+    except subprocess.CalledProcessError:
+        messagebox.showerror('Error', 'Error occurred while listing autoruns.')
+
 # Create the main window
 window = tk.Tk()
 window.title('File Scanner')
@@ -140,6 +156,10 @@ scan_ip_button.pack()
 # Create get active connections button
 get_connections_button = tk.Button(window, text='Get Active Connections', command=get_active_connections)
 get_connections_button.pack()
+
+# Create list autoruns button
+list_autoruns_button = tk.Button(window, text='List Autoruns', command=list_autoruns)
+list_autoruns_button.pack()
 
 # Start the main event loop
 window.mainloop()
