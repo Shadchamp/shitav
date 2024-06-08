@@ -51,7 +51,21 @@ def get_active_connections():
                     updated_result += line + '\n'
             else:
                 updated_result += line + '\n'
-        messagebox.showinfo('Active Connections', updated_result)
+        
+        # Filter out localhost connections
+        filtered_result = ''
+        for line in updated_result.split('\n'):
+            if '127.0.0.1' not in line and '::1' not in line and '0.0.0.0:0' not in line and '*:*' not in line:
+                filtered_result += line + '\n'
+        
+        # Create a scrollable text box to display the results
+        scrollable_text = tk.Text(window)
+        scrollable_text.insert(tk.END, filtered_result)
+        scrollable_text.pack(fill=tk.BOTH, expand=True)
+        
+        # Create close button
+        close_button = tk.Button(window, text='Close', command=lambda:[scrollable_text.destroy(),close_button.destroy()])
+        close_button.pack()
     except subprocess.CalledProcessError:
         messagebox.showerror('Error', 'Error occurred while retrieving active connections.')
 
